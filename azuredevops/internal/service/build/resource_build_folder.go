@@ -3,7 +3,6 @@ package build
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,7 +55,7 @@ func resourceBuildFolderCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf(" failed creating resource Build Folder, %+v", err)
 	}
 
-	flattenBuildFolder(d, createdBuildFolder, projectID)
+	d.SetId(createdBuildFolder.Project.Id.String())
 	return resourceBuildFolderRead(d, m)
 }
 
@@ -64,7 +63,7 @@ func resourceBuildFolderRead(d *schema.ResourceData, m interface{}) error {
 	clients := m.(*client.AggregatedClient)
 
 	projectID := d.Get("project_id").(string)
-	path := d.Id()
+	path := d.Get("path").(string)
 
 	buildFolders, err := clients.BuildClient.GetFolders(clients.Ctx, build.GetFoldersArgs{
 		Project: &projectID,
@@ -100,7 +99,7 @@ func resourceBuildFolderUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf(" failed to expand build folder configurations. Project ID: %s , Error: %+v", projectID, err)
 	}
 
-	updatedBuildFolder, err := clients.BuildClient.UpdateFolder(m.(*client.AggregatedClient).Ctx, build.UpdateFolderArgs{
+	_, err = clients.BuildClient.UpdateFolder(m.(*client.AggregatedClient).Ctx, build.UpdateFolderArgs{
 		Project: &projectID,
 		Path:    converter.String(oldPath.(string)),
 		Folder:  buildFolder,
@@ -109,16 +108,10 @@ func resourceBuildFolderUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to update build folder.  Project ID: %s, Error: %+v ", projectID, err)
 	}
-
-	flattenBuildFolder(d, updatedBuildFolder, projectID)
 	return resourceBuildFolderRead(d, m)
 }
 
 func resourceBuildFolderDelete(d *schema.ResourceData, m interface{}) error {
-	if strings.EqualFold(d.Id(), "") {
-		return nil
-	}
-
 	clients := m.(*client.AggregatedClient)
 
 	projectID := d.Get("project_id").(string)
@@ -133,7 +126,6 @@ func resourceBuildFolderDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func flattenBuildFolder(d *schema.ResourceData, buildFolder *build.Folder, projectID string) {
-	d.SetId(*buildFolder.Path)
 	d.Set("project_id", projectID)
 	d.Set("path", buildFolder.Path)
 	d.Set("description", buildFolder.Description)
