@@ -75,7 +75,6 @@ func resourcePipelineAuthorizationCreateUpdate(d *schema.ResourceData, m interfa
 		return fmt.Errorf(" creating authorized resource: %+v", err)
 	}
 	d.SetId(*response.Resource.Id)
-
 	return resourcePipelineAuthorizationRead(d, m)
 }
 
@@ -112,8 +111,6 @@ func resourcePipelineAuthorizationRead(d *schema.ResourceData, m interface{}) er
 			d.Set("pipeline_id", nil)
 		}
 	}
-
-	d.SetId(*resp.Resource.Id)
 	return nil
 }
 

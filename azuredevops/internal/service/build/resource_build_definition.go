@@ -458,7 +458,7 @@ func resourceBuildDefinitionUpdate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	updatedBuildDefinition, err := clients.BuildClient.UpdateDefinition(m.(*client.AggregatedClient).Ctx, build.UpdateDefinitionArgs{
+	_, err = clients.BuildClient.UpdateDefinition(m.(*client.AggregatedClient).Ctx, build.UpdateDefinitionArgs{
 		Definition:   buildDefinition,
 		Project:      &projectID,
 		DefinitionId: buildDefinition.Id,
@@ -468,7 +468,6 @@ func resourceBuildDefinitionUpdate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	flattenBuildDefinition(d, updatedBuildDefinition, projectID)
 	return resourceBuildDefinitionRead(d, m)
 }
 
@@ -491,8 +490,6 @@ func resourceBuildDefinitionDelete(d *schema.ResourceData, m interface{}) error 
 }
 
 func flattenBuildDefinition(d *schema.ResourceData, buildDefinition *build.BuildDefinition, projectID string) {
-	d.SetId(strconv.Itoa(*buildDefinition.Id))
-
 	d.Set("project_id", projectID)
 	d.Set("name", *buildDefinition.Name)
 	d.Set("path", *buildDefinition.Path)

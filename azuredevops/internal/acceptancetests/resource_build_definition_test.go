@@ -100,10 +100,10 @@ func TestAccBuildDefinition_WithVariables(t *testing.T) {
 		CheckDestroy: checkBuildDefinitionDestroyed,
 		Steps: []resource.TestStep{
 			{
-				Config: hclBuildDefinitionVariable("foo1", "bar1", name),
+				Config: hclBuildDefinitionVariable(name, "foo1", "bar1"),
 				Check:  checkForVariableValues(tfNode, "foo1", "bar1"),
 			}, {
-				Config: hclBuildDefinitionVariable("foo2", "bar2", name),
+				Config: hclBuildDefinitionVariable(name, "foo2", "bar2"),
 				Check:  checkForVariableValues(tfNode, "foo2", "bar2"),
 			},
 		},

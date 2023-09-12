@@ -2,6 +2,7 @@ package build
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -297,6 +298,7 @@ func dataSourceGitRepositoryRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Multiple build definitions with name %s found in project %s", name, projectID)
 	}
 
+	d.SetId(strconv.Itoa(*(*buildDefinitions)[0].Id))
 	flattenBuildDefinition(d, &(*buildDefinitions)[0], projectID)
 
 	return nil
