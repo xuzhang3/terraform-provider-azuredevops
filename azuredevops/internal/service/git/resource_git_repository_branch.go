@@ -167,7 +167,6 @@ func resourceGitRepositoryBranchRead(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(fmt.Errorf("Error reading branch %q: %w", name, err))
 	}
 
-	d.SetId(fmt.Sprintf("%s:%s", repoId, shortBranchName))
 	d.Set("name", shortBranchName)
 	d.Set("repository_id", repoId)
 	d.Set("last_commit_id", *gotBranch.Commit.CommitId)

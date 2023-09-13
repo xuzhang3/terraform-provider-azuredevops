@@ -287,12 +287,10 @@ func resourceGroupDelete(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf(" waiting for group delete. %v ", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
 func flattenGroup(d *schema.ResourceData, group *graph.GraphGroup, members *[]graph.GraphMembership) error {
-	d.SetId(*group.Descriptor)
 	d.Set("descriptor", *group.Descriptor)
 
 	if group.DisplayName != nil {

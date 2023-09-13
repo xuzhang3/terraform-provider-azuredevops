@@ -194,8 +194,6 @@ func resourceGroupMembershipDelete(d *schema.ResourceData, m interface{}) error 
 		return fmt.Errorf("Error removing group memberships during delete: %+v", err)
 	}
 
-	// this marks the resource as deleted
-	d.SetId("")
 	return nil
 }
 

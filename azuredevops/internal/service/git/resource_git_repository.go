@@ -231,8 +231,54 @@ func resourceGitRepositoryCreate(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
+	return resourceGitRepositoryRead(d, m)
+}
+
+func resourceGitRepositoryRead(d *schema.ResourceData, m interface{}) error {
+	repoID := d.Id()
+	repoName := d.Get("name").(string)
+	projectID := d.Get("project_id").(string)
+
+	clients := m.(*client.AggregatedClient)
+	repo, err := gitRepositoryRead(clients, repoID, repoName, projectID)
+	if err != nil {
+		if utils.ResponseWasNotFound(err) {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("Error looking up repository with ID %s and Name %s. Error: %v", repoID, repoName, err)
+	}
+
+	err = flattenGitRepository(d, repo)
+	if err != nil {
+		return fmt.Errorf("Failed to flatten Git repository: %w", err)
+	}
+	return nil
+}
+
+func resourceGitRepositoryUpdate(d *schema.ResourceData, m interface{}) error {
+	clients := m.(*client.AggregatedClient)
+	repo, _, projectID, err := expandGitRepository(d)
+	if err != nil {
+		return fmt.Errorf("Error converting terraform data model to AzDO project reference: %+v", err)
+	}
+
+	_, err = updateGitRepository(clients, repo, projectID)
+	if err != nil {
+		return fmt.Errorf("Error updating repository in Azure DevOps: %+v", err)
+	}
 
 	return resourceGitRepositoryRead(d, m)
+}
+
+func resourceGitRepositoryDelete(d *schema.ResourceData, m interface{}) error {
+	repoID := d.Id()
+	clients := m.(*client.AggregatedClient)
+	err := deleteGitRepository(clients, repoID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func waitForBranch(clients *client.AggregatedClient, repoName *string, projectID fmt.Stringer) error {
@@ -331,43 +377,6 @@ func initializeGitRepository(clients *client.AggregatedClient, repo *git.GitRepo
 	return err
 }
 
-func resourceGitRepositoryRead(d *schema.ResourceData, m interface{}) error {
-	repoID := d.Id()
-	repoName := d.Get("name").(string)
-	projectID := d.Get("project_id").(string)
-
-	clients := m.(*client.AggregatedClient)
-	repo, err := gitRepositoryRead(clients, repoID, repoName, projectID)
-	if err != nil {
-		if utils.ResponseWasNotFound(err) {
-			d.SetId("")
-			return nil
-		}
-		return fmt.Errorf("Error looking up repository with ID %s and Name %s. Error: %v", repoID, repoName, err)
-	}
-
-	err = flattenGitRepository(d, repo)
-	if err != nil {
-		return fmt.Errorf("Failed to flatten Git repository: %w", err)
-	}
-	return nil
-}
-
-func resourceGitRepositoryUpdate(d *schema.ResourceData, m interface{}) error {
-	clients := m.(*client.AggregatedClient)
-	repo, _, projectID, err := expandGitRepository(d)
-	if err != nil {
-		return fmt.Errorf("Error converting terraform data model to AzDO project reference: %+v", err)
-	}
-
-	_, err = updateGitRepository(clients, repo, projectID)
-	if err != nil {
-		return fmt.Errorf("Error updating repository in Azure DevOps: %+v", err)
-	}
-
-	return resourceGitRepositoryRead(d, m)
-}
-
 func updateGitRepository(clients *client.AggregatedClient, repository *git.GitRepository, project fmt.Stringer) (*git.GitRepository, error) {
 	if nil == project {
 		return nil, fmt.Errorf("updateGitRepository: ID of project cannot be nil")
@@ -380,18 +389,6 @@ func updateGitRepository(clients *client.AggregatedClient, repository *git.GitRe
 			RepositoryId:      repository.Id,
 			Project:           &projectID,
 		})
-}
-
-func resourceGitRepositoryDelete(d *schema.ResourceData, m interface{}) error {
-	repoID := d.Id()
-	clients := m.(*client.AggregatedClient)
-	err := deleteGitRepository(clients, repoID)
-	if err != nil {
-		return err
-	}
-
-	d.SetId("")
-	return nil
 }
 
 func deleteGitRepository(clients *client.AggregatedClient, repoID string) error {
@@ -418,7 +415,6 @@ func gitRepositoryRead(clients *client.AggregatedClient, repoID string, repoName
 }
 
 func flattenGitRepository(d *schema.ResourceData, repository *git.GitRepository) error {
-	d.SetId(repository.Id.String())
 	d.Set("name", repository.Name)
 	if repository.Project == nil || repository.Project.Id == nil {
 		return fmt.Errorf("Unable to flatten Git repository without a valid projectID")

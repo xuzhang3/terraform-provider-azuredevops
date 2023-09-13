@@ -312,7 +312,5 @@ func resourceTeamMembersDelete(d *schema.ResourceData, m interface{}) error {
 	if _, err := stateConf.WaitForState(); err != nil { //nolint:staticcheck
 		return fmt.Errorf(" waiting for distribution of member list update. %v ", err)
 	}
-
-	d.SetId("")
 	return nil
 }

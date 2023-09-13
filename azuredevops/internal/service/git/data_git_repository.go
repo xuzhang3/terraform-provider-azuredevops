@@ -79,7 +79,9 @@ func dataSourceGitRepositoryRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Multiple Repositories with name %s found in project %s", name, projectID)
 	}
 
-	err = flattenGitRepository(d, &(*projectRepos)[0])
+	repo := &(*projectRepos)[0]
+	d.SetId(repo.Id.String())
+	err = flattenGitRepository(d, repo)
 	if err != nil {
 		return fmt.Errorf("Error flattening Git repository: %w", err)
 	}
