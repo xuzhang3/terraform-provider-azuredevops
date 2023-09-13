@@ -281,7 +281,6 @@ func resourceTeamDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -341,12 +340,6 @@ func waitForTeamStateChange(d *schema.ResourceData, clients *client.AggregatedCl
 }
 
 func flattenTeam(d *schema.ResourceData, team *core.WebApiTeam, members *schema.Set, administrators *schema.Set) {
-	if team == nil {
-		d.SetId("")
-		return
-	}
-
-	d.SetId(team.Id.String())
 	d.Set("name", team.Name)
 	d.Set("description", team.Description)
 	d.Set("administrators", administrators)

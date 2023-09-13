@@ -474,6 +474,8 @@ func expandProject(clients *client.AggregatedClient, d *schema.ResourceData, for
 }
 
 func flattenProject(clients *client.AggregatedClient, d *schema.ResourceData, project *core.TeamProject) error {
+	d.SetId(project.Id.String())
+
 	var err error
 	processTemplateName := ""
 	processTemplateID := (*project.Capabilities)["processTemplate"]["templateTypeId"]
@@ -500,7 +502,6 @@ func flattenProject(clients *client.AggregatedClient, d *schema.ResourceData, pr
 		currentFeatureStates = states
 	}
 
-	d.SetId(project.Id.String())
 	d.Set("name", project.Name)
 	d.Set("visibility", project.Visibility)
 	d.Set("description", project.Description)
