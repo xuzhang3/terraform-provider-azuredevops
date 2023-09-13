@@ -930,10 +930,7 @@ resource "azuredevops_group" "%s" {
 	display_name = "%s"
 }
 
-output "group_id_%s" {
-	value = azuredevops_group.%s.id
-}
-`, HclProjectResource(projectName), groupResourceName, groupName, groupResourceName, groupResourceName)
+`, HclProjectResource(projectName), groupResourceName, groupName)
 }
 
 // HclResourceAuthorization HCL describing a resource authorization

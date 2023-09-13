@@ -82,7 +82,6 @@ func resourceServiceEndpointPermissionsDelete(d *schema.ResourceData, m interfac
 		return err
 	}
 
-	d.SetId("")
 	return nil
 }
 

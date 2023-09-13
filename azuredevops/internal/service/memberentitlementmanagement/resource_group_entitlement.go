@@ -266,7 +266,6 @@ func importGroupEntitlement(d *schema.ResourceData, m interface{}) ([]*schema.Re
 }
 
 func flattenGroupEntitlement(d *schema.ResourceData, groupEntitlement *memberentitlementmanagement.GroupEntitlement) {
-	d.SetId(groupEntitlement.Id.String())
 	d.Set("descriptor", *groupEntitlement.Group.Descriptor)
 	d.Set("origin", *groupEntitlement.Group.Origin)
 	d.Set("principal_name", *groupEntitlement.Group.PrincipalName)

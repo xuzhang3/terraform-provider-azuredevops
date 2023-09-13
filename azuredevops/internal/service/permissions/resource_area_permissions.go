@@ -82,8 +82,6 @@ func resourceAreaPermissionsDelete(d *schema.ResourceData, m interface{}) error 
 	if err := securityhelper.SetPrincipalPermissions(d, sn, &securityhelper.PermissionTypeValues.NotSet, true); err != nil {
 		return err
 	}
-
-	d.SetId("")
 	return nil
 }
 

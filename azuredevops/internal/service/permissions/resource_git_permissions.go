@@ -93,7 +93,6 @@ func resourceGitPermissionsDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.SetId("")
 	return nil
 }
 

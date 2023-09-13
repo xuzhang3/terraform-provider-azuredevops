@@ -22,13 +22,13 @@ func TestAccBranchPolicyAutoReviewers_CreateAndUpdate(t *testing.T) {
 		Providers: testutils.GetProviders(),
 		Steps: []resource.TestStep{
 			{
-				Config: getAutoReviewersHcl(true, true, false, "auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/release\"", "Exact"),
+				Config: getAutoReviewersHcl(true, true, false, "auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/main\"", "Exact"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "enabled", "true"),
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "blocking", "true"),
 				),
 			}, {
-				Config: getAutoReviewersHcl(false, false, true, "new auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/release\"", "Exact"),
+				Config: getAutoReviewersHcl(false, false, true, "new auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/main\"", "Exact"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "enabled", "false"),
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "blocking", "false"),
@@ -70,7 +70,7 @@ func TestAccBranchPolicyAutoReviewers_CreateAndUpdate_MinimumApproverCount(t *te
 		Providers: testutils.GetProviders(),
 		Steps: []resource.TestStep{
 			{
-				Config: getAutoReviewersGroupHcl(true, true, true, "auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/master\"", "Exact", 1),
+				Config: getAutoReviewersGroupHcl(true, true, true, "auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/main\"", "Exact", 1),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "enabled", "true"),
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "blocking", "true"),
@@ -78,7 +78,7 @@ func TestAccBranchPolicyAutoReviewers_CreateAndUpdate_MinimumApproverCount(t *te
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "settings.0.minimum_number_of_reviewers", "1"),
 				),
 			}, {
-				Config: getAutoReviewersGroupHcl(true, true, true, "new auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/master\"", "Exact", 2),
+				Config: getAutoReviewersGroupHcl(true, true, true, "new auto reviewer", fmt.Sprintf("\"%s\",\"%s\"", "*/API*.cs", "README.md"), "\"refs/heads/main\"", "Exact", 2),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "enabled", "true"),
 					resource.TestCheckResourceAttr(autoReviewerTfNode, "blocking", "true"),
