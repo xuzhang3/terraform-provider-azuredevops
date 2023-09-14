@@ -84,7 +84,6 @@ func baseFlattenFunc(d *schema.ResourceData, policyConfig *policy.PolicyConfigur
 		d.SetId("")
 		return nil
 	}
-	d.SetId(strconv.Itoa(*policyConfig.Id))
 	d.Set("project_id", converter.ToString(projectID, ""))
 	d.Set("enabled", converter.ToBool(policyConfig.IsEnabled, true))
 	d.Set("blocking", converter.ToBool(policyConfig.IsBlocking, true))
@@ -182,7 +181,8 @@ func genPolicyCreateFunc(crudArgs *policyCrudArgs) schema.CreateFunc { //nolint:
 			return fmt.Errorf("Error creating policy in Azure DevOps: %+v", err)
 		}
 
-		return crudArgs.FlattenFunc(d, createdPolicy, projectID)
+		d.SetId(strconv.Itoa(*createdPolicy.Id))
+		return genPolicyReadFunc(crudArgs)(d, m)
 	}
 }
 
@@ -224,7 +224,7 @@ func genPolicyUpdateFunc(crudArgs *policyCrudArgs) schema.UpdateFunc { //nolint:
 			return err
 		}
 
-		updatedPolicy, err := clients.PolicyClient.UpdatePolicyConfiguration(clients.Ctx, policy.UpdatePolicyConfigurationArgs{
+		_, err = clients.PolicyClient.UpdatePolicyConfiguration(clients.Ctx, policy.UpdatePolicyConfigurationArgs{
 			ConfigurationId: policyConfig.Id,
 			Configuration:   policyConfig,
 			Project:         projectID,
@@ -234,7 +234,7 @@ func genPolicyUpdateFunc(crudArgs *policyCrudArgs) schema.UpdateFunc { //nolint:
 			return fmt.Errorf("Error updating policy in Azure DevOps: %+v", err)
 		}
 
-		return crudArgs.FlattenFunc(d, updatedPolicy, projectID)
+		return genPolicyReadFunc(crudArgs)(d, m)
 	}
 }
 
