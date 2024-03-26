@@ -148,3 +148,5 @@ _Note that for secret variables, the import command retrieve blank value in the 
 - **Token Administration**: Read & manage
 - **Tokens**: Read & manage
 - **Work Items**: Read
+- **Pipeline Resources**: Use and manage
+- **Service Connections**: Read, query, & manage
