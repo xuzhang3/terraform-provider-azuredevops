@@ -30,10 +30,10 @@ func ResourceGitRepositoryFile() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 				parts := strings.Split(d.Id(), ":")
-				branch := "refs/heads/master"
+				branch := "refs/heads/main"
 
 				if len(parts) > 2 {
-					return nil, fmt.Errorf("Invalid ID specified. Supplied ID must be written as <repository>/<file path> (when branch is \"master\") or <repository>/<file path>:<branch>")
+					return nil, fmt.Errorf(" Invalid ID specified. Supplied ID must be written as <repository>/<file path> (when branch is \"master\") or <repository>/<file path>:<branch>")
 				}
 
 				if len(parts) == 2 {
@@ -241,6 +241,22 @@ func resourceGitRepositoryFileUpdate(d *schema.ResourceData, m interface{}) erro
 	_, err := checkRepositoryBranchExists(clients, repoId, branch)
 	if err != nil {
 		return fmt.Errorf(" Updating Git file. Failed to get repository branch. Repository ID: %s. Branch Name: %s. Error:  %+v", repoId, branch, err)
+	}
+
+	item, err := clients.GitReposClient.GetItem(ctx, git.GetItemArgs{
+		RepositoryId:           &repoId,
+		Path:                   &file,
+		IncludeContentMetadata: converter.ToPtr(true),
+		IncludeContent:         converter.ToPtr(true),
+	})
+	if err != nil {
+		return err
+	}
+	if item.Content != nil {
+		// TODO LFS, different file compare?
+		if strings.EqualFold(d.Get("content").(string), *item.Content) {
+			return fmt.Errorf(" No content changed, no commit will be submit.")
+		}
 	}
 
 	// Need to retry creating the file as multiple updates could happen at the same time
